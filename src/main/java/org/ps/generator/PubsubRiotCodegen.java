@@ -22,76 +22,21 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
-public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
+public class PubsubRiotCodegen extends DefaultCodegen implements CodegenConfig {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PubsubJavaCodegen.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PubsubRiotCodegen.class);
    
     protected String apiVersion = "1.0.0";
     protected String projectName = "openapi-pubsub";
-    
-    @Override
-    public String apiPackage() {
-        return "org.pubsub.controller";
-    }
-    
-    @Override
-    public String modelPackage() {
-        return "org.pubsub.models";
-    }
-    
-    @Override
-    public String toApiName(String name) {
-        if (name.length() == 0) {
-            return "DefaultController";
-        }
-        return StringUtils.camelize(name);
-    }
-
-    @Override
-    public String toApiFilename(String name) {
-        return toApiName(name);
-    }
-    
-    @Override
-    public String apiFileFolder() {
-        return "src" + File.separator + "main" + File.separator + "java";
-    }
-    
-    @Override
-    public String modelFileFolder() {
-        return "src" + File.separator + "main" + File.separator + "java";
-    }
 
     @Override
     public String apiFilename(String templateName, String tag) {
         String suffix = apiTemplateFiles().get(templateName);
-        if (suffix.endsWith(".xml") || suffix.endsWith(".md")) {
-        	return outputFolder 
-        			+ File.separator + tag
-        			+ File.separator + suffix;
-        }
-        if (suffix.startsWith("Main")) {
+        // if (suffix.startsWith("main")) {
         	return outputFolder
             		+ File.separator + tag
-            		+ File.separator + apiFileFolder() 
-            		+ File.separator + apiPackage().replace('.', File.separatorChar)
             		+ File.separator + suffix;
-        }
-        return outputFolder
-        		+ File.separator + tag
-        		+ File.separator + apiFileFolder() 
-        		+ File.separator + apiPackage().replace('.', File.separatorChar)
-        		+ File.separator + toApiFilename(tag) + suffix;
-    }
-    
-    @Override
-    public String modelFilename(String templateName, String modelName) {
-    	String suffix = modelTemplateFiles().get(templateName);
-        return outputFolder
-        		+ File.separator + modelPackage
-        		+ File.separator + modelFileFolder() 
-        		+ File.separator + modelPackage().replace('.', File.separatorChar)
-        		+ File.separator + StringUtils.camelize(modelName) + suffix;
+        // }
     }
         
     @Override
@@ -101,12 +46,12 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
 
     @Override
     public String getName() {
-        return "pubsub-java";
+        return "pubsub-riot";
     }
 
     @Override
     public String getHelp() {
-        return "Generates a pub-sub library for Java with AMQP.";
+        return "Generates a pub-sub library for RIOT-OS with MQTT.";
     }
     
     @Override
@@ -117,11 +62,11 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
         return "_" + name;
     }
 
-    public PubsubJavaCodegen() {
+    public PubsubRiotCodegen() {
         super();
         
         // set the output folder here
-        outputFolder = "generated-code" + File.separator + "pubsub-java";
+        outputFolder = "generated-code" + File.separator + "pubsub-riot";
         
         /*
          * Models.  You can write model files using the modelTemplateFiles map.
@@ -129,29 +74,23 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
          * for multiple files for model, just put another entry in the `modelTemplateFiles` with
          * a different extension
          */
-        modelTemplateFiles.put("model/model.mustache", ".java");
+        modelTemplateFiles.clear();
         
         /*
          * Api classes.  You can write classes for each Api file with the apiTemplateFiles map.
          * as with models, add multiple entries with different extensions for multiple files per
          * class
          */
-        apiTemplateFiles.put("api/api.mustache", ".java");
-        apiTemplateFiles.put("api/Main.mustache", "Main.java");
-        apiTemplateFiles.put("api/README.mustache", "README.md");
-        apiTemplateFiles.put("api/pom.mustache", "pom.xml");
+        apiTemplateFiles.put("main.mustache", "main.c");
+        apiTemplateFiles.put("Makefile.mustache", "Makefile");
+        apiTemplateFiles.put("README.mustache", "README.md");
         
         /*
          * Template Location.  This is the location which templates will be read from.  The generator
          * will use the resource stream to attempt to read the templates.
          */
-        embeddedTemplateDir = templateDir = "java";
+        embeddedTemplateDir = templateDir = "riot";
 
-        modelPackage = "Models";
-        
-        supportingFiles.add(new SupportingFile("model/README.mustache", modelPackage, "README.md"));
-        supportingFiles.add(new SupportingFile("model/pom.mustache", modelPackage, "pom.xml"));
-        
         /*
          * Additional Properties.  These values can be passed to the templates and
          * are available in models, apis, and supporting files
@@ -182,7 +121,7 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
         
         openAPI.setPaths(tp.getPathOpsFromTopics());
     }
-    
+
     @Override
     public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
         Map<String, Object> ops = (Map<String, Object>) objs.get("operations");    

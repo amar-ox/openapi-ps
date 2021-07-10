@@ -3,6 +3,7 @@ package org.ps.generator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.openapitools.codegen.utils.StringUtils;
 import org.ps.model.Publish;
 import org.ps.model.Subscribe;
 import org.ps.model.TopicItem;
@@ -11,9 +12,11 @@ import org.ps.model.Topics;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 
 public class TopicsProcessor {
 
@@ -75,6 +78,41 @@ public class TopicsProcessor {
             }
         }
     }
+    
+    /*
+     * visit Topics, create Paths with Operations
+     * uses mapping between publish/subscribe and OpenAPI Operation
+     */
+     public Paths getPathOpsFromTopics() {
+         Paths paths = new Paths();
+         for (String topic : topics.keySet()) {
+         	TopicItem topicItem = topics.get(topic);
+         	PathItem pi = new PathItem();
+      
+         	if (topicItem.getPublish() != null) {
+         		Operation op = new Operation();
+         		String opId = "publish" + StringUtils.camelize(topic.substring(1));
+         		op.setOperationId(opId);
+         		op.setTags(topicItem.getPublish().getEntities());
+         		RequestBody rb = new RequestBody();
+         		rb.setContent(topicItem.getContent());
+         		op.setRequestBody(rb);
+         		pi.setPut(op);
+         	}
+         	if (topicItem.getSubscribe() != null) {
+         		Operation op = new Operation();
+         		String opId = "subscribeTo" + StringUtils.camelize(topic.substring(1));
+         		op.setOperationId(opId);
+         		op.setTags(topicItem.getSubscribe().getEntities());
+         		RequestBody rb = new RequestBody();
+         		rb.setContent(topicItem.getContent());
+         		op.setRequestBody(rb);
+         		pi.setGet(op);
+         	}
+         	paths.addPathItem(topic, pi);
+         }
+         return paths;
+     }
 
     public Topics getTopics() {
         return topics;
