@@ -1,4 +1,5 @@
 target/
+generated-code/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -19,3 +20,4 @@ oldtemplate
 .settings
 .project
 petstore.json
+*.log
