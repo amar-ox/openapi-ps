@@ -1,17 +1,30 @@
 package org.ps.generator;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import org.openapitools.codegen.CodegenConfig;
 import org.openapitools.codegen.CodegenType;
 import org.openapitools.codegen.DefaultCodegen;
 import org.openapitools.codegen.SupportingFile;
 import org.openapitools.codegen.utils.StringUtils;
+import org.ps.model.TopicItem;
+import org.ps.model.Topics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.Operation;
+import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.parameters.RequestBody;
+
+import org.openapitools.codegen.utils.ModelUtils;
 
 public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
 
@@ -137,15 +150,9 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
          * will use the resource stream to attempt to read the templates.
          */
         embeddedTemplateDir = templateDir = "pubsub";
-        
-        /*
-         * ...
-         */
+
         modelPackage = "Models";
         
-        /*
-         * TODO: move to processOpts()
-         */
         supportingFiles.add(new SupportingFile("model/README.mustache", modelPackage, "README.md"));
         supportingFiles.add(new SupportingFile("model/pom.mustache", modelPackage, "pom.xml"));
         
@@ -177,9 +184,58 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
         TopicsProcessor tp = new TopicsProcessor(openAPI);
         System.out.println(tp.getTopics().toString());
         
-        // Use Topics to create Operations...
+        Topics topics = tp.getTopics();
+        
+        openAPI.setPaths(getPathOpsFromTopics(topics));
+    }
+
+    /*
+    * visit Topics, create Paths with Operations
+    * uses mapping between publish/subscribe and OpenAPI Operation
+    */
+    private Paths getPathOpsFromTopics(Topics topics) {
+        Paths paths = new Paths();
+        for (String topic : topics.keySet()) {
+        	TopicItem topicItem = topics.get(topic);
+        	PathItem pi = new PathItem();
+     
+        	if (topicItem.getPublish() != null) {
+        		Operation op = new Operation();
+        		String opId = "publish" + StringUtils.camelize(topic.substring(1));
+        		op.setOperationId(opId);
+        		op.setTags(topicItem.getPublish().getEntities());
+        		RequestBody rb = new RequestBody();
+        		rb.setContent(topicItem.getContent());
+        		op.setRequestBody(rb);
+        		pi.setPut(op);
+        	}
+        	if (topicItem.getSubscribe() != null) {
+        		Operation op = new Operation();
+        		String opId = "subscribeTo" + StringUtils.camelize(topic.substring(1));
+        		op.setOperationId(opId);
+        		op.setTags(topicItem.getSubscribe().getEntities());
+        		RequestBody rb = new RequestBody();
+        		rb.setContent(topicItem.getContent());
+        		op.setRequestBody(rb);
+        		pi.setGet(op);
+        	}
+        	paths.addPathItem(topic, pi);
+        }
+        return paths;
     }
     
+    @Override
+    public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
+        Map<String, Object> ops = (Map<String, Object>) objs.get("operations");    
+        try {
+            FileWriter myWriter = new FileWriter("openapi-objs.log");
+            myWriter.write(""+objs);
+            myWriter.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        return super.postProcessSupportingFileData(objs);
+    }
     
     @Override
     public String escapeUnsafeCharacters(String input) {

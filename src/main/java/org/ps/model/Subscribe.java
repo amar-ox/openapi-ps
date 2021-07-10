@@ -21,6 +21,7 @@ public class Subscribe {
     // private List<SecurityRequirement> security = null;
     private List<Server> servers = null;
     private java.util.Map<String, Object> extensions = null;
+    private String qos = null;
 
     public Subscribe() {}
 
@@ -208,5 +209,13 @@ public class Subscribe {
         }
         return o.toString().replace("\n", "\n    ");
     }
+
+	public String getQos() {
+		return qos;
+	}
+
+	public void setQos(String qos) {
+		this.qos = qos;
+	}
 
 }
