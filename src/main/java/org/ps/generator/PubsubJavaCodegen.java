@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.openapitools.codegen.CodegenConfig;
@@ -21,14 +20,11 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
-import org.openapitools.codegen.utils.ModelUtils;
+public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
 
-public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PubsubCodegen.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PubsubJavaCodegen.class);
    
     protected String apiVersion = "1.0.0";
     protected String projectName = "openapi-pubsub";
@@ -105,7 +101,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
 
     @Override
     public String getName() {
-        return "java-pubsub";
+        return "pubsub-java";
     }
 
     @Override
@@ -121,11 +117,11 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
         return "_" + name;
     }
 
-    public PubsubCodegen() {
+    public PubsubJavaCodegen() {
         super();
         
         // set the output folder here
-        outputFolder = "generated-code" + File.separator + "java-pubsub";
+        outputFolder = "generated-code" + File.separator + "pubsub-java";
         
         /*
          * Models.  You can write model files using the modelTemplateFiles map.
@@ -149,7 +145,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
          * Template Location.  This is the location which templates will be read from.  The generator
          * will use the resource stream to attempt to read the templates.
          */
-        embeddedTemplateDir = templateDir = "pubsub";
+        embeddedTemplateDir = templateDir = "java";
 
         modelPackage = "Models";
         
