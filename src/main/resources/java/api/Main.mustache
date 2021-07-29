@@ -2,11 +2,22 @@
 
 package org.pubsub.controller;
 
-// {{classname}} Main
+{{#imports}} 
+import {{import}};
+{{/imports}}
 
 public class Main {
 
 	public static void main(String[] args) {
-		// start {{classname}}
+
+		{{classname}} m{{classname}} = new {{classname}}();	
+			
+		{{#operations}}
+		{{#operation}}
+		{{#isSubscribe}}
+		{{classname}}.{{operationId}}();
+		{{/isSubscribe}}
+	    {{/operation}}
+        {{/operations}}	
 	}
 }

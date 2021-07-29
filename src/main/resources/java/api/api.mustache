@@ -1,9 +1,54 @@
-// {{classname}} Handler template
+//{{classname}} Handler template
+{{>licenseInfo}}
+package {{package}};
 
-{{#operations}}
+{{#imports}}
+import {{import}};
+{{/imports}}
+
+{{^fullJavaUtil}}
+import java.nio.charset.StandardCharsets;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DeliverCallback;
+{{/fullJavaUtil}}
+
+public class {{classname}} {
+
+    public {{classname}}() {}
+    
+    {{#operations}}
     {{#operation}}
-    public void {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{^-last}}, {{/-last}}{{/allParams}}) {
-        // {{path}}
+    {{#isSubscribe}}
+    public void {{operationId}}() throws ApiException {
+        String queue = "{{path}}";
+		    ConnectionFactory factory = new ConnectionFactory();
+		    factory.setHost("localhost");
+		    Connection connexion = factory.newConnection();
+		    Channel canal = connexion.createChannel();
+		    canal.queueDeclare(queue , false, false, false, null);
+        DeliverCallback broker1 = (consumerTag, delivery) -> {
+		        String message = new String(delivery.getBody(), "UTF-8");
+            {{#allParams}}
+            {{dataType}} {{paramName}} = new {{dataType}}().fromJsonStr(message);
+			      new {{classname}}PubSubCallback().{{operationId}}Callback({{paramName}});
+            {{/allParams}}
+	      };
+	      canal.basicConsume(queue , true, broker1, consumerTag -> { });
     }
+    {{/isSubscribe}}
+    {{^isSubscribe}}
+    public void {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{/allParams}}) throws ApiException {
+        String queue = "{{path}}";
+		    ConnectionFactory factory = new ConnectionFactory();
+		    factory.setHost("localhost");
+		    Connection connexion = factory.newConnection();
+		    Channel canal = connexion.createChannel();
+		    canal.queueDeclare(queue , false, false, false, null);
+        canal.basicPublish("", queue , null, {{#allParams}}{{paramName}}{{/allParams}}.toString().getBytes(StandardCharsets.UTF_8)); 
+    }
+    {{/isSubscribe}} 
     {{/operation}}
-{{/operations}}
+    {{/operations}}
+}

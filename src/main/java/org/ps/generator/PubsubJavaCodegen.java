@@ -3,10 +3,13 @@ package org.ps.generator;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.openapitools.codegen.CodegenConfig;
+import org.openapitools.codegen.CodegenOperation;
 import org.openapitools.codegen.CodegenType;
 import org.openapitools.codegen.DefaultCodegen;
 import org.openapitools.codegen.SupportingFile;
@@ -138,6 +141,7 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
          */
         apiTemplateFiles.put("api/api.mustache", ".java");
         apiTemplateFiles.put("api/Main.mustache", "Main.java");
+        apiTemplateFiles.put("api/callback.mustache", "PubsubCallback.java");
         apiTemplateFiles.put("api/README.mustache", "README.md");
         apiTemplateFiles.put("api/pom.mustache", "pom.xml");
         
@@ -194,6 +198,20 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
             e.printStackTrace();
           }
         return super.postProcessSupportingFileData(objs);
+    }
+
+    @Override
+    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
+        Map<String, Object> operations = (Map<String, Object>) super.postProcessOperationsWithModels(objs, allModels).get("operations");
+        List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
+        List<PubsubCodegenOperation> newOps = new ArrayList<>();
+        for (CodegenOperation o : ops) {
+        	PubsubCodegenOperation psco = new PubsubCodegenOperation(o);
+            psco.isSubscribe = o.operationId.startsWith("subscribe");
+            newOps.add(psco);
+        }
+        operations.put("operation", newOps);
+        return objs;
     }
     
     @Override

@@ -1,0 +1,22 @@
+// {{classname}} Handler template
+{{>licenseInfo}}
+package {{package}};
+
+{{#imports}} 
+import {{import}};
+{{/imports}}
+
+public class {{classname}}PubSubCallback {
+
+    public {{classname}}PubSubCallback() {}
+    
+    {{#operations}}
+    {{#operation}}
+    {{#isSubscribe}}
+    public void {{operationId}}{{#allParams}}Callback({{{dataType}}} {{paramName}}{{/allParams}}) {
+        // Not implemented  
+    }
+    {{/isSubscribe}}
+    {{/operation}}
+    {{/operations}}
+}
