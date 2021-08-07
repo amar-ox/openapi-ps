@@ -8,22 +8,22 @@ import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.servers.Server;
 
-public class Publish {
+public class PubsubOperation {
     
-    private List<String> entities = null; 
-    private String summary = null;
-    private String description = null;
-    private ExternalDocumentation externalDocs = null;
-    private String operationId = null;
-    private List<Parameter> parameters = null;
-    // private Map<String, Callback> callbacks = null;
-    private Boolean deprecated = null;
-    // private List<SecurityRequirement> security = null;
-    private List<Server> servers = null;
-    private java.util.Map<String, Object> extensions = null;
-    private String qos = null;
+    protected List<String> entities = null; 
+    protected String summary = null;
+    protected String description = null;
+    protected ExternalDocumentation externalDocs = null;
+    protected String operationId = null;
+    protected List<Parameter> parameters = null;
+    // protected Map<String, Callback> callbacks = null;
+    protected Boolean deprecated = null;
+    // protected List<SecurityRequirement> security = null;
+    protected List<Server> servers = null;
+    protected java.util.Map<String, Object> extensions = null;
+    protected String qos = null;
 
-    public Publish() {}
+    public PubsubOperation() {}
 
     public List<String> getEntities() {
         return entities;
@@ -31,11 +31,11 @@ public class Publish {
     public void setEntities(List<String> entities) {
         this.entities = entities;
     }
-    public Publish entities(List<String> entities) {
+    public PubsubOperation entities(List<String> entities) {
         this.entities = entities;
         return this;
     }
-    public Publish addEntitiesItem(String entitiesItem) {
+    public PubsubOperation addEntitiesItem(String entitiesItem) {
         if (this.entities == null) {
             this.entities = new ArrayList<>();
         }
@@ -49,7 +49,7 @@ public class Publish {
     public void setSummary(String summary) {
         this.summary = summary;
     }
-    public Publish summary(String summary) {
+    public PubsubOperation summary(String summary) {
         this.summary = summary;
         return this;
     }
@@ -60,7 +60,7 @@ public class Publish {
     public void setDescription(String description) {
         this.description = description;
     }
-    public Publish description(String description) {
+    public PubsubOperation description(String description) {
         this.description = description;
         return this;
     }
@@ -71,7 +71,7 @@ public class Publish {
     public void setExternalDocs(ExternalDocumentation externalDocs) {
         this.externalDocs = externalDocs;
     }
-    public Publish externalDocs(ExternalDocumentation externalDocs) {
+    public PubsubOperation externalDocs(ExternalDocumentation externalDocs) {
         this.externalDocs = externalDocs;
         return this;
     }
@@ -82,7 +82,7 @@ public class Publish {
     public void setOperationId(String operationId) {
         this.operationId = operationId;
     }
-    public Publish operationId(String operationId) {
+    public PubsubOperation operationId(String operationId) {
         this.operationId = operationId;
         return this;
     }
@@ -93,11 +93,11 @@ public class Publish {
     public void setParameters(List<Parameter> parameters) {
         this.parameters = parameters;
     }
-    public Publish parameters(List<Parameter> parameters) {
+    public PubsubOperation parameters(List<Parameter> parameters) {
         this.parameters = parameters;
         return this;
     }
-    public Publish addParametersItem(Parameter parametersItem) {
+    public PubsubOperation addParametersItem(Parameter parametersItem) {
         if (this.parameters == null) {
             this.parameters = new ArrayList<>();
         }
@@ -111,7 +111,7 @@ public class Publish {
     public void setDeprecated(Boolean deprecated) {
         this.deprecated = deprecated;
     }
-    public Publish deprecated(Boolean deprecated) {
+    public PubsubOperation deprecated(Boolean deprecated) {
         this.deprecated = deprecated;
         return this;
     }
@@ -122,11 +122,11 @@ public class Publish {
     public void setServers(List<Server> servers) {
         this.servers = servers;
     }
-    public Publish servers(List<Server> servers) {
+    public PubsubOperation servers(List<Server> servers) {
         this.servers = servers;
         return this;
     }
-    public Publish addServersItem(Server serversItem) {
+    public PubsubOperation addServersItem(Server serversItem) {
         if (this.servers == null) {
             this.servers = new ArrayList<>();
         }
@@ -142,7 +142,7 @@ public class Publish {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Publish operation = (Publish) o;
+        PubsubOperation operation = (PubsubOperation) o;
         return Objects.equals(this.entities, operation.entities) &&
                 Objects.equals(this.summary, operation.summary) &&
                 Objects.equals(this.description, operation.description) &&
@@ -151,12 +151,13 @@ public class Publish {
                 Objects.equals(this.parameters, operation.parameters) &&
                 Objects.equals(this.deprecated, operation.deprecated) &&
                 Objects.equals(this.servers, operation.servers) &&
+                Objects.equals(this.qos, operation.qos) &&
                 Objects.equals(this.extensions, operation.extensions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(entities, summary, description, externalDocs, operationId, parameters, deprecated, servers, extensions);
+        return Objects.hash(entities, summary, description, externalDocs, operationId, parameters, deprecated, servers, extensions, qos);
     }
 
     public java.util.Map<String, Object> getExtensions() {
@@ -177,7 +178,7 @@ public class Publish {
         this.extensions = extensions;
     }
 
-    public Publish extensions(java.util.Map<String, Object> extensions) {
+    public PubsubOperation extensions(java.util.Map<String, Object> extensions) {
         this.extensions = extensions;
         return this;
     }
@@ -185,7 +186,7 @@ public class Publish {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("class Publish {\n");
+        sb.append("class PubsubOperation {\n");
 
         sb.append("    entities: ").append(toIndentedString(entities)).append("\n");
         sb.append("    summary: ").append(toIndentedString(summary)).append("\n");
@@ -195,6 +196,7 @@ public class Publish {
         sb.append("    parameters: ").append(toIndentedString(parameters)).append("\n");
         sb.append("    deprecated: ").append(toIndentedString(deprecated)).append("\n");
         sb.append("    servers: ").append(toIndentedString(servers)).append("\n");
+        sb.append("    qos: ").append(toIndentedString(qos)).append("\n");
         sb.append("}");
         return sb.toString();
     }
@@ -203,7 +205,7 @@ public class Publish {
      * Convert the given object to string with each line indented by 4 spaces
      * (except the first line).
      */
-    private String toIndentedString(java.lang.Object o) {
+    protected String toIndentedString(java.lang.Object o) {
         if (o == null) {
             return "null";
         }
@@ -217,5 +219,4 @@ public class Publish {
 	public void setQos(String qos) {
 		this.qos = qos;
 	}
-
 }

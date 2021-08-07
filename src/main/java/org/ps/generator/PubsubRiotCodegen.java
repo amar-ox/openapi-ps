@@ -22,12 +22,9 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
-public class PubsubRiotCodegen extends DefaultCodegen implements CodegenConfig {
+public class PubsubRiotCodegen extends PubsubCodegen {
 
     private static final Logger LOG = LoggerFactory.getLogger(PubsubRiotCodegen.class);
-   
-    protected String apiVersion = "1.0.0";
-    protected String projectName = "openapi-pubsub";
 
     @Override
     public String apiFilename(String templateName, String tag) {
@@ -38,11 +35,6 @@ public class PubsubRiotCodegen extends DefaultCodegen implements CodegenConfig {
             		+ File.separator + suffix;
         // }
     }
-        
-    @Override
-    public CodegenType getTag() {
-        return CodegenType.SERVER;
-    }
 
     @Override
     public String getName() {
@@ -52,14 +44,6 @@ public class PubsubRiotCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public String getHelp() {
         return "Generates a pub-sub library for RIOT-OS with MQTT.";
-    }
-    
-    @Override
-    public String escapeReservedWord(String name) {
-        if(this.reservedWordsMappings().containsKey(name)) {
-            return this.reservedWordsMappings().get(name);
-        }
-        return "_" + name;
     }
 
     public PubsubRiotCodegen() {
@@ -115,34 +99,5 @@ public class PubsubRiotCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
-
-        TopicsProcessor tp = new TopicsProcessor(openAPI);
-        System.out.println(tp.getTopics().toString());
-        
-        openAPI.setPaths(tp.getPathOpsFromTopics());
-    }
-
-    @Override
-    public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        Map<String, Object> ops = (Map<String, Object>) objs.get("operations");    
-        try {
-            FileWriter myWriter = new FileWriter("openapi-objs.log");
-            myWriter.write(""+objs);
-            myWriter.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        return super.postProcessSupportingFileData(objs);
-    }
-    
-    @Override
-    public String escapeUnsafeCharacters(String input) {
-        return input.replace("*/", "*_/").replace("/*", "/_*");
-    }
-
-    @Override
-    public String escapeQuotationMark(String input) {
-        // remove " to avoid code injection
-        return input.replace("\"", "");
     }
 }

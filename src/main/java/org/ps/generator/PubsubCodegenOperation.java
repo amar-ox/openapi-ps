@@ -54,6 +54,7 @@ class PubsubCodegenOperation extends CodegenOperation {
         this.optionalParams = o.optionalParams;
         this.authMethods = o.authMethods;
         this.tags = o.tags;
+        this.servers = o.servers;
         this.responses = o.responses;
         this.imports = o.imports;
         this.examples = o.examples;

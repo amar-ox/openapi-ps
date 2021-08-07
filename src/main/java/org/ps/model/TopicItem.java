@@ -9,8 +9,8 @@ import io.swagger.v3.oas.models.servers.Server;
 
 public class TopicItem {
     
-    private Publish publish = null;
-    private Subscribe subscribe = null;
+    private PubsubOperation publish = null;
+    private PubsubOperation subscribe = null;
     private Content content = null;
     private String summary = null;
     private String description = null;
@@ -21,24 +21,24 @@ public class TopicItem {
 
     public TopicItem() {}
 
-    public void setPublish(Publish publish) {
+    public void setPublish(PubsubOperation publish) {
         this.publish = publish;
     }
-    public Publish getPublish() {
+    public PubsubOperation getPublish() {
         return publish;
     }
-    public TopicItem publish(Publish publish) {
+    public TopicItem publish(PubsubOperation publish) {
         this.publish = publish;
         return this;
     }
 
-    public Subscribe getSubscribe() {
+    public PubsubOperation getSubscribe() {
         return subscribe;
     }
-    public void setSubscribe(Subscribe subscribe) {
+    public void setSubscribe(PubsubOperation subscribe) {
         this.subscribe = subscribe;
     }
-    public TopicItem subscribe(Subscribe subscribe) {
+    public TopicItem subscribe(PubsubOperation subscribe) {
         this.subscribe = subscribe;
         return this;
     }

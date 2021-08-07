@@ -25,12 +25,9 @@ import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 
-public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
+public class PubsubJavaCodegen extends PubsubCodegen {
 
     private static final Logger LOG = LoggerFactory.getLogger(PubsubJavaCodegen.class);
-   
-    protected String apiVersion = "1.0.0";
-    protected String projectName = "openapi-pubsub";
     
     @Override
     public String apiPackage() {
@@ -40,19 +37,6 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public String modelPackage() {
         return "org.pubsub.models";
-    }
-    
-    @Override
-    public String toApiName(String name) {
-        if (name.length() == 0) {
-            return "DefaultController";
-        }
-        return StringUtils.camelize(name);
-    }
-
-    @Override
-    public String toApiFilename(String name) {
-        return toApiName(name);
     }
     
     @Override
@@ -96,11 +80,6 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
         		+ File.separator + modelPackage().replace('.', File.separatorChar)
         		+ File.separator + StringUtils.camelize(modelName) + suffix;
     }
-        
-    @Override
-    public CodegenType getTag() {
-        return CodegenType.SERVER;
-    }
 
     @Override
     public String getName() {
@@ -110,14 +89,6 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public String getHelp() {
         return "Generates a pub-sub library for Java with AMQP.";
-    }
-    
-    @Override
-    public String escapeReservedWord(String name) {
-        if(this.reservedWordsMappings().containsKey(name)) {
-            return this.reservedWordsMappings().get(name);
-        }
-        return "_" + name;
     }
 
     public PubsubJavaCodegen() {
@@ -180,48 +151,11 @@ public class PubsubJavaCodegen extends DefaultCodegen implements CodegenConfig {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
-
-        TopicsProcessor tp = new TopicsProcessor(openAPI);
-        System.out.println(tp.getTopics().toString());
-        
-        openAPI.setPaths(tp.getPathOpsFromTopics());
-    }
-    
-    @Override
-    public Map<String, Object> postProcessSupportingFileData(Map<String, Object> objs) {
-        Map<String, Object> ops = (Map<String, Object>) objs.get("operations");    
-        try {
-            FileWriter myWriter = new FileWriter("openapi-objs.log");
-            myWriter.write(""+objs);
-            myWriter.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        return super.postProcessSupportingFileData(objs);
+        // System.out.println(topics.toString());
     }
 
     @Override
     public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
-        Map<String, Object> operations = (Map<String, Object>) super.postProcessOperationsWithModels(objs, allModels).get("operations");
-        List<CodegenOperation> ops = (List<CodegenOperation>) operations.get("operation");
-        List<PubsubCodegenOperation> newOps = new ArrayList<>();
-        for (CodegenOperation o : ops) {
-        	PubsubCodegenOperation psco = new PubsubCodegenOperation(o);
-            psco.isSubscribe = o.operationId.startsWith("subscribe");
-            newOps.add(psco);
-        }
-        operations.put("operation", newOps);
-        return objs;
-    }
-    
-    @Override
-    public String escapeUnsafeCharacters(String input) {
-        return input.replace("*/", "*_/").replace("/*", "/_*");
-    }
-
-    @Override
-    public String escapeQuotationMark(String input) {
-        // remove " to avoid code injection
-        return input.replace("\"", "");
+        return super.postProcessOperationsWithModels(objs, allModels);
     }
 }

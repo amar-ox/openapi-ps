@@ -4,13 +4,15 @@ info:
   title: Multiverse Telemetry API
   description: A simplified version of the Controller-Agent pub-sub API for telemetry.
 
-x-ps-brokers:
-  - name: broker1
-    description: First AMQP broker.
-    hotsname: 'localhost:5672'
+servers:
+  - url: http://broker.root:4534
+    description: My AMQP broker.
 
 paths: # topics
   '/capability':
+    servers:
+      - url: http://broker.topic:4534
+        description: My AMQP broker.
     x-ps-publish:
       entities: 
         - agent
@@ -31,6 +33,9 @@ paths: # topics
         - controller
       description: Controller publishes a request towards agents.
       qos: 'at-least-one'
+      servers:
+        - url: http://broker.specification:4534
+          description: My AMQP broker.
     x-ps-subscribe:
       entities: 
         - agent

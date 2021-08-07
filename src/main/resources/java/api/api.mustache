@@ -15,37 +15,53 @@ import com.rabbitmq.client.DeliverCallback;
 {{/fullJavaUtil}}
 
 public class {{classname}} {
-
+    
+    private List<String> globalServers = new ArrayList<String>({{#servers}}{{#-first}}Arrays.asList({{/-first}}"{{{url}}}"{{^-last}}, {{/-last}}){{/servers}});
+    
     public {{classname}}() {}
     
     {{#operations}}
     {{#operation}}
     {{#isSubscribe}}
     public void {{operationId}}() throws ApiException {
+        private List<String> servers = new ArrayList<String>({{#servers}}{{#-first}}Arrays.asList({{/-first}}"{{{url}}}"{{^-last}}, {{/-last}}){{/servers}});
+        String broker = "";
+        if (!servers.isEmpty()) {
+            broker = servers.get(0);
+        } else {
+            broker = globalServers.get(0);
+        }
         String queue = "{{path}}";
-		    ConnectionFactory factory = new ConnectionFactory();
-		    factory.setHost("localhost");
-		    Connection connexion = factory.newConnection();
-		    Channel canal = connexion.createChannel();
-		    canal.queueDeclare(queue , false, false, false, null);
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setHost(broker);
+		Connection connexion = factory.newConnection();
+		Channel canal = connexion.createChannel();
+		canal.queueDeclare(queue , false, false, false, null);
         DeliverCallback broker1 = (consumerTag, delivery) -> {
-		        String message = new String(delivery.getBody(), "UTF-8");
+		    String message = new String(delivery.getBody(), "UTF-8");
             {{#allParams}}
             {{dataType}} {{paramName}} = new {{dataType}}().fromJsonStr(message);
-			      new {{classname}}PubSubCallback().{{operationId}}Callback({{paramName}});
+			new {{classname}}PubSubCallback().{{operationId}}Callback({{paramName}});
             {{/allParams}}
-	      };
-	      canal.basicConsume(queue , true, broker1, consumerTag -> { });
+	    };
+	    canal.basicConsume(queue , true, broker1, consumerTag -> { });
     }
     {{/isSubscribe}}
     {{^isSubscribe}}
     public void {{operationId}}({{#allParams}}{{{dataType}}} {{paramName}}{{/allParams}}) throws ApiException {
+        private List<String> servers = new ArrayList<String>({{#servers}}{{#-first}}Arrays.asList({{/-first}}"{{{url}}}"{{^-last}}, {{/-last}}){{/servers}});
+        String broker = "";
+        if (!servers.isEmpty()) {
+            broker = servers.get(0);
+        } else {
+            broker = globalServers.get(0);
+        }
         String queue = "{{path}}";
-		    ConnectionFactory factory = new ConnectionFactory();
-		    factory.setHost("localhost");
-		    Connection connexion = factory.newConnection();
-		    Channel canal = connexion.createChannel();
-		    canal.queueDeclare(queue , false, false, false, null);
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setHost(broker);
+		Connection connexion = factory.newConnection();
+		Channel canal = connexion.createChannel();
+		canal.queueDeclare(queue , false, false, false, null);
         canal.basicPublish("", queue , null, {{#allParams}}{{paramName}}{{/allParams}}.toString().getBytes(StandardCharsets.UTF_8)); 
     }
     {{/isSubscribe}} 
