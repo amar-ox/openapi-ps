@@ -1,15 +1,15 @@
 package org.ps.generator;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.openapitools.codegen.CodegenConfig;
 import org.openapitools.codegen.CodegenOperation;
-import org.openapitools.codegen.CodegenServer;
 import org.openapitools.codegen.CodegenType;
 import org.openapitools.codegen.DefaultCodegen;
 import org.openapitools.codegen.utils.StringUtils;
@@ -41,7 +41,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
     public PubsubCodegen() {
     	super();
     }
-     
+
     @Override
     public String toApiName(String name) {
         if (name.length() == 0) {
@@ -75,7 +75,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
         super.preprocessOpenAPI(openAPI);
         
         rootServers = new ArrayList<Server>();
-        rootServers.addAll(openAPI.getServers());
+        rootServers.addAll(parseUrls(openAPI.getServers()));
     }
 
     @Override
@@ -86,6 +86,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
          for (CodegenOperation o : ops) {
          	PubsubCodegenOperation psco = new PubsubCodegenOperation(o);
             psco.isSubscribe = o.operationId.startsWith("subscribe");
+            psco.qos = (String) o.vendorExtensions.get("_qos");
             newOps.add(psco);
          }
          operations.put("operation", newOps);
@@ -105,7 +106,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
                 // Set topic.servers from path.servers
                 PathItem path = paths.get(pathname); 
                 if (path.getServers() != null && !path.getServers().isEmpty()) {
-            		topic.setServers(path.getServers());
+            		topic.setServers(parseUrls(path.getServers()));
             	}
 
                 Map<String, Object> extensions = path.getExtensions();
@@ -118,12 +119,17 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
                         PubsubOperation publish = mapper.convertValue(publishMap, PubsubOperation.class);
                         topic.setPublish(publish);
                         
-                        // operation.servers, then topic.servers, then global.servers
-                        if (!(publish.getServers() != null && !publish.getServers().isEmpty())) {
-                            // use topic servers if defined
+                        if (publish.getServers() != null && !publish.getServers().isEmpty()) {
+                        	publish.setServers(parseUrls(publish.getServers()));
+                        } else {
+                        	// use topic servers if defined
                         	if (topic.getServers() != null && !topic.getServers().isEmpty()) {
                         		publish.setServers(topic.getServers());
                         	}
+                        }
+
+                        if (publish.getQos() == null) {
+                        	publish.setQos("once");
                         }
                         isPubsub = true;
                 	}
@@ -136,12 +142,17 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
                 		PubsubOperation subscribe = mapper.convertValue(subscribeMap, PubsubOperation.class);
                         topic.setSubscribe(subscribe);
                         
-                        // operation.servers, then topic.servers, then global.servers
-                        if (!(subscribe.getServers() != null && !subscribe.getServers().isEmpty())) {
-                            // use topic servers if defined
+                        if (subscribe.getServers() != null && !subscribe.getServers().isEmpty()) {
+                        	subscribe.setServers(parseUrls(subscribe.getServers()));
+                        } else {
+                        	// use topic servers if defined
                         	if (topic.getServers() != null && !topic.getServers().isEmpty()) {
                         		subscribe.setServers(topic.getServers());
                         	}
+                        }
+                        
+                        if (subscribe.getQos() == null) {
+                        	subscribe.setQos("once");
                         }
                         isPubsub = true;
                 	}
@@ -187,6 +198,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
          		op.setOperationId(opId);
          		op.setTags(topicItem.getPublish().getEntities());
          		op.setServers(topicItem.getPublish().getServers());
+         		op.setExtensions(Collections.singletonMap("_qos", topicItem.getPublish().getQos()));
          		RequestBody rb = new RequestBody();
          		rb.setContent(topicItem.getContent());
          		op.setRequestBody(rb);
@@ -198,6 +210,7 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
          		op.setOperationId(opId);
          		op.setTags(topicItem.getSubscribe().getEntities());
          		op.setServers(topicItem.getSubscribe().getServers());
+         		op.setExtensions(Collections.singletonMap("_qos", topicItem.getSubscribe().getQos()));
          		RequestBody rb = new RequestBody();
          		rb.setContent(topicItem.getContent());
          		op.setRequestBody(rb);
@@ -225,5 +238,20 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
     public String escapeQuotationMark(String input) {
         // remove " to avoid code injection
         return input.replace("\"", "");
+    }
+    
+    private List<Server> parseUrls(List<Server> servers) {
+    	List<Server> rs = new ArrayList<Server>();
+    	rs.addAll(servers);
+    	for (Server s : rs) {
+    		URL aURL;
+			try {
+				aURL = new URL(s.getUrl());
+				s.setUrl(aURL.getHost() + ":" + aURL.getPort());
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+    	}
+    	return rs;
     }
 }

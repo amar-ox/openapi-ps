@@ -17,7 +17,7 @@ paths: # topics
       entities: 
         - agent
       description: Agent advertizes its capabilities.
-      qos: 'none'
+      qos: 'once'
     x-ps-subscribe:
       entities: 
         - controller
@@ -32,7 +32,7 @@ paths: # topics
       entities: 
         - controller
       description: Controller publishes a request towards agents.
-      qos: 'at-least-one'
+      qos: 'at-least-once'
       servers:
         - url: http://broker.specification:4534
           description: My AMQP broker.
@@ -50,7 +50,7 @@ paths: # topics
       entities: 
         - agent
       description: Agents publish measurement results.
-      qos: 'none'
+      qos: 'once'
     x-ps-subscribe:
       entities: 
         - controller
@@ -65,7 +65,7 @@ paths: # topics
       entities: 
         - controller
       description: Controller stops active mesurements.
-      qos: 'at-least-one'
+      qos: 'at-least-once'
     x-ps-subscribe:
       entities: 
         - agent
@@ -80,7 +80,7 @@ paths: # topics
       entities: 
         - agent
       description: Agents sends a receipt for measurement or an interrupt.
-      qos: 'at-least-one'
+      qos: 'at-least-once'
     x-ps-subscribe:
       entities: 
         - controller

@@ -4,6 +4,7 @@ import org.openapitools.codegen.CodegenOperation;
 
 class PubsubCodegenOperation extends CodegenOperation {
     public boolean isSubscribe;
+    public String qos;
 
     public PubsubCodegenOperation(CodegenOperation o) {
         super();

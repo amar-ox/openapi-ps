@@ -1,1 +1,23 @@
-// {{classname}} RIOT makefile
+{{!This mustache template return Makefile for RIOT}}
+{{!The application name is global variable as it is defined specifically}}
+APPLICATION = {{app_name}}
+
+{{!The macros tag contains name of the macro and its value which can be overrided}}
+{{#macros}}
+{{name}} ?= {{value}}
+{{/macros}}
+
+{{!All the modules used in programs are mentioned in module tag}}
+{{#module}}
+USEMODULE += {{.}}
+{{/module}}
+
+{{!conditional tag implements generalised version of conditions used in Makefile}} 
+{{#conditional}}
+{{condition}} ({{var1}},{{var2}})
+{{name}} += {{value}}
+endif
+{{/conditional}}
+
+{{!no changes in the last line as it constant}}
+include $(RIOTBASE)/Makefile.include

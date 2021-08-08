@@ -1,26 +1,14 @@
 package org.ps.generator;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
-import org.openapitools.codegen.CodegenConfig;
-import org.openapitools.codegen.CodegenType;
-import org.openapitools.codegen.DefaultCodegen;
-import org.openapitools.codegen.SupportingFile;
-import org.openapitools.codegen.utils.StringUtils;
-import org.ps.model.TopicItem;
-import org.ps.model.Topics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.Operation;
-import io.swagger.v3.oas.models.PathItem;
-import io.swagger.v3.oas.models.Paths;
-import io.swagger.v3.oas.models.parameters.RequestBody;
 
 public class PubsubRiotCodegen extends PubsubCodegen {
 
@@ -29,11 +17,9 @@ public class PubsubRiotCodegen extends PubsubCodegen {
     @Override
     public String apiFilename(String templateName, String tag) {
         String suffix = apiTemplateFiles().get(templateName);
-        // if (suffix.startsWith("main")) {
         	return outputFolder
             		+ File.separator + tag
             		+ File.separator + suffix;
-        // }
     }
 
     @Override
@@ -66,6 +52,7 @@ public class PubsubRiotCodegen extends PubsubCodegen {
          * class
          */
         apiTemplateFiles.put("main.mustache", "main.c");
+        apiTemplateFiles.put("callback.mustache", "callback.c");
         apiTemplateFiles.put("Makefile.mustache", "Makefile");
         apiTemplateFiles.put("README.mustache", "README.md");
         
@@ -99,5 +86,28 @@ public class PubsubRiotCodegen extends PubsubCodegen {
     @Override
     public void preprocessOpenAPI(OpenAPI openAPI) {
         super.preprocessOpenAPI(openAPI);
+    }
+    
+    @Override
+    public Map<String, Object> postProcessOperationsWithModels(Map<String, Object> objs, List<Object> allModels) {
+    	Map<String, Object> nObjs = (Map<String, Object>) super.postProcessOperationsWithModels(objs, allModels);
+    	Map<String, Object> operations = (Map<String, Object>) nObjs.get("operations");
+    	List<PubsubCodegenOperation> ops = (List<PubsubCodegenOperation>) operations.get("operation");
+        for (PubsubCodegenOperation o : ops) {
+        	String mqttQos = "";
+        	switch (o.qos) {
+                case "at-least-once":
+                	mqttQos = "1";
+                    break;
+                case "only-once":
+                	mqttQos = "2";
+                    break;
+                default:
+                	mqttQos = "0";
+        	}
+        	o.qos = mqttQos;
+        }
+        operations.put("operation", ops);
+        return nObjs;
     }
 }

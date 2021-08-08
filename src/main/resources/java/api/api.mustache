@@ -22,6 +22,7 @@ public class {{classname}} {
     
     {{#operations}}
     {{#operation}}
+    // QOS: {{qos}}
     {{#isSubscribe}}
     public void {{operationId}}() throws ApiException {
         private List<String> servers = new ArrayList<String>({{#servers}}{{#-first}}Arrays.asList({{/-first}}"{{{url}}}"{{^-last}}, {{/-last}}){{/servers}});

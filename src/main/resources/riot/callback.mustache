@@ -1,0 +1,12 @@
+{{#operations}}{{#operation}}{{#isSubscribe}}
+static void {{operationId}}_onPub(const emcute_topic_t *topic, void *data, size_t len)
+{
+    char *in = (char *)data;
+    printf("### got publication for topic '%s' [%i] ###\n",
+           {{topic}}->name, (int){{topic}}->id);
+    for (size_t i = 0; i < len; i++) {
+        printf("%c", in[i]);
+    }
+    puts("");
+}
+{{/isSubscribe}}{{/operation}}{{/operations}}
