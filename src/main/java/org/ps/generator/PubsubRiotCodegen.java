@@ -52,7 +52,6 @@ public class PubsubRiotCodegen extends PubsubCodegen {
          * class
          */
         apiTemplateFiles.put("main.mustache", "main.c");
-        apiTemplateFiles.put("callback.mustache", "callback.c");
         apiTemplateFiles.put("Makefile.mustache", "Makefile");
         apiTemplateFiles.put("README.mustache", "README.md");
         

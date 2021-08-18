@@ -3,16 +3,10 @@ info:
   version: 1.0.0
   title: Multiverse Telemetry API
   description: A simplified version of the Controller-Agent pub-sub API for telemetry.
-
 servers:
   - url: fec0:affe::1
-    description: My AMQP broker.
-
 paths: # topics
   '/capability':
-    servers:
-      - url: http://broker.topic:4534
-        description: My AMQP broker.
     x-ps-publish:
       entities: 
         - agent
@@ -33,9 +27,6 @@ paths: # topics
         - controller
       description: Controller publishes a request towards agents.
       qos: 'at-least-once'
-      servers:
-        - url: http://broker.specification:4534
-          description: My AMQP broker.
     x-ps-subscribe:
       entities: 
         - agent
@@ -125,7 +116,7 @@ components:
         resultColumns:
           description: List of possible result (e.g., cpu usage, available memory).
           type: array
-          items: 
+          items:
             type: string
   
     Capability:

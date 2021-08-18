@@ -1,0 +1,208 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Multiverse Telemetry API
+  description: A simplified version of the Controller-Agent pub-sub API for telemetry.
+servers:
+  - url: multiverse.com:4534
+    description: Main AMQP broker.
+paths: # topics
+  '/capability':
+    servers:
+      - url: capability.multiverse:4534
+        description: Capability AMQP broker.
+    x-ps-publish:
+      entities: 
+        - agent
+      description: Agent advertizes its capabilities.
+      qos: 'once'
+    x-ps-subscribe:
+      entities: 
+        - controller
+      description: Controller collects agents measurement capabilities.
+    x-ps-content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Capability'
+
+  '/specification':
+    x-ps-publish:
+      entities: 
+        - controller
+      description: Controller publishes a request towards agents.
+      qos: 'at-least-once'
+    x-ps-subscribe:
+      entities: 
+        - agent
+      description: Agents listen to incoming measurement requests.
+    x-ps-content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Specification'
+          
+  '/result':
+    x-ps-publish:
+      entities: 
+        - agent
+      description: Agents publish measurement results.
+      qos: 'once'
+    x-ps-subscribe:
+      entities: 
+        - controller
+      description: Controller receives measurement results.
+    x-ps-content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Result'
+  
+  '/interrupt':
+    x-ps-publish:
+      entities: 
+        - controller
+      description: Controller stops active mesurements.
+      qos: 'at-least-once'
+    x-ps-subscribe:
+      entities: 
+        - agent
+      description: Agents receive interrupt to stop an active measurement.
+    x-ps-content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Interrupt'
+
+  '/receipt':
+    x-ps-publish:
+      entities: 
+        - agent
+      description: Agents sends a receipt for measurement or an interrupt.
+      qos: 'at-least-once'
+    x-ps-subscribe:
+      entities: 
+        - controller
+      description: Controller receives a receipt for a measurement or interrupt.
+    x-ps-content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Receipt'
+              
+components:
+  schemas:
+    CommonFields:
+      type: object
+      required:
+        - name
+        - type
+        - operationId
+        - when
+        - ts
+        - target
+        - resultColumns
+      properties:
+        name:
+          type: string
+          description: Name of the capability. Must be unique and constant over related messages.
+        type:
+          type: string
+          description: Type of the measurement (e.g., cpu, memory). Must be constant over related messages.
+        operationId:
+          type: string
+          description: Hash that identifies a measurement (i.e., specification, recipt, result).
+        when:
+          type: string
+          description: Format <start> ... <stop> / <period>
+        ts:
+          type: string
+          format: date-time
+          description: Timestamp of the message creation time.
+        target:
+          type: string
+          description: Identifies agent or group of agents.
+        resultColumns:
+          description: List of possible result (e.g., cpu usage, available memory).
+          type: array
+          items:
+            type: string
+  
+    Capability:
+      description: A capability provided by the agent.
+      allOf:
+        - $ref: '#/components/schemas/CommonFields'
+        - type: object
+          required:
+            - capability
+          properties:
+            capability:
+              description: Verb of the capability message.
+              type: string
+              enum:
+                - measure
+  
+    Specification:
+      description: A request that corresponds to the capability.
+      allOf:
+        - $ref: '#/components/schemas/CommonFields'
+        - type: object
+          required:
+            - specification
+          properties:
+            specification:
+              description: Verb of the specification message.
+              type: string
+              enum:
+                - measure
+
+    Interrupt:
+      description: Stop an ative specification.
+      allOf:
+        - $ref: '#/components/schemas/CommonFields'
+        - type: object
+          required:
+            - interrupt
+          properties:
+            interrupt:
+              description: Verb of the interrupt message.
+              type: string
+              enum:
+                - measure
+
+    Receipt:
+      description: Response to either a specification or an interrupt.
+      allOf:
+        - $ref: '#/components/schemas/CommonFields'
+        - type: object
+          required:
+            - receipt
+            - errors
+          properties:
+            receipt:
+              description: Verb of the receipt message.
+              type: string
+              enum:
+                - measure
+            errors:
+              description: List of errors if any. Empty otherwise.
+              type: array
+              items:
+                type: string
+
+    Result:
+      description: Result values as measured by the agent.
+      allOf:
+        - $ref: '#/components/schemas/CommonFields'
+        - type: object
+          required:
+            - result
+            - resultValues
+          properties:
+            result:
+              description: Verb of the result message.
+              type: string
+              enum:
+                - measure
+            resultValues:
+              description: Actual values associated to results measured.
+              type: array
+              items:
+                type: array
+                items:
+                  type: string
