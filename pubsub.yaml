@@ -5,7 +5,7 @@ info:
   description: A simplified version of the Controller-Agent pub-sub API for telemetry.
 
 servers:
-  - url: http://broker.root:4534
+  - url: fec0:affe::1
     description: My AMQP broker.
 
 paths: # topics
