@@ -40,6 +40,8 @@ public class PubsubCodegen extends DefaultCodegen implements CodegenConfig {
     
     public PubsubCodegen() {
     	super();
+        additionalProperties.put("apiVersion", apiVersion);
+        additionalProperties.put("projectName", projectName);
     }
 
     @Override

@@ -1,21 +1,17 @@
 {{>licenseInfo}}
 
-package org.pubsub.controller;
-
-{{#imports}} 
-import {{import}};
-{{/imports}}
+package {{package}};
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Exception {
 
 		{{classname}} m{{classname}} = new {{classname}}();
 	
 		{{#operations}}
 		{{#operation}}
 		{{#isSubscribe}}
-		{{classname}}.{{operationId}}();
+		m{{classname}}.{{operationId}}();
 		{{/isSubscribe}}
 	    {{/operation}}
         {{/operations}}	

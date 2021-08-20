@@ -16,9 +16,11 @@ public class PubsubJavaCodegen extends PubsubCodegen {
 
     private static final Logger LOG = LoggerFactory.getLogger(PubsubJavaCodegen.class);
     
+    protected String groupId = "org.pubsub";
+    
     @Override
     public String apiPackage() {
-        return "org.pubsub.controller";
+        return "org.pubsub.api";
     }
     
     @Override
@@ -118,8 +120,7 @@ public class PubsubJavaCodegen extends PubsubCodegen {
          * Additional Properties.  These values can be passed to the templates and
          * are available in models, apis, and supporting files
          */
-        additionalProperties.put("apiVersion", apiVersion);
-        additionalProperties.put("projectName", projectName);
+        additionalProperties.put("groupId", groupId);
         
         /*
          * Reserved words.  Override this with reserved words specific to your language

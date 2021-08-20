@@ -4,15 +4,15 @@ info:
   title: Multiverse Telemetry API
   description: A simplified version of the Controller-Agent pub-sub API for telemetry.
 servers:
-  - url: multiverse.com:4534
+  - url: http://multiverse.com:4534
     description: Main AMQP broker.
 paths: # topics
   '/capability':
     servers:
-      - url: capability.multiverse:4534
+      - url: http://capability.multiverse:4534
         description: Capability AMQP broker.
     x-ps-publish:
-      entities: 
+      entities:
         - agent
       description: Agent advertizes its capabilities.
       qos: 'once'
@@ -135,7 +135,7 @@ components:
               description: Verb of the capability message.
               type: string
               enum:
-                - measure
+                - MEASURE
   
     Specification:
       description: A request that corresponds to the capability.
@@ -149,7 +149,7 @@ components:
               description: Verb of the specification message.
               type: string
               enum:
-                - measure
+                - MEASURE
 
     Interrupt:
       description: Stop an ative specification.
@@ -163,7 +163,7 @@ components:
               description: Verb of the interrupt message.
               type: string
               enum:
-                - measure
+                - MEASURE
 
     Receipt:
       description: Response to either a specification or an interrupt.
@@ -178,7 +178,7 @@ components:
               description: Verb of the receipt message.
               type: string
               enum:
-                - measure
+                - MEASURE
             errors:
               description: List of errors if any. Empty otherwise.
               type: array
@@ -198,7 +198,7 @@ components:
               description: Verb of the result message.
               type: string
               enum:
-                - measure
+                - MEASURE
             resultValues:
               description: Actual values associated to results measured.
               type: array

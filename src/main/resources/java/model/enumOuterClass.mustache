@@ -31,6 +31,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
         return b;
       }
     }
-    {{#isNullable}}return null;{{/isNullable}}{{^isNullable}}throw new IllegalArgumentException("Unexpected value '" + value + "'");{{/isNullable}}
+    {{#useNullForUnknownEnumValue}}return null;{{/useNullForUnknownEnumValue}}{{^useNullForUnknownEnumValue}}throw new IllegalArgumentException("Unexpected value '" + value + "'");{{/useNullForUnknownEnumValue}}
   }
 }
